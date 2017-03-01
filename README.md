@@ -1,2 +1,2 @@
 # Hide-USB-Debugging-Mode
-A Xposed module that is used to hide usb debugging status. Useful for apps such as TWC TV which refuses to run when usb debugging is on
+An Xposed module that can be used to hide your device's usb debugging status. Useful for apps such as TWC/Spectrum TV which refuse to run when they detect that your usb debugging mode is on.
