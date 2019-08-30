@@ -6,17 +6,17 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.AppCompat.DayNight">
 
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Hide usb debugging mode, useful to apps such as TwcTV which refuse to run if usb debugging is on" />
+            android:value="Hide usb debug mode, useful to apps such as TwcTV/Spectrum TV which refuse to run if usb debugging is on" />
         <meta-data
             android:name="xposedminversion"
-            android:value="50" />
+            android:value="82" />
 
         <activity
             android:name="com.redlee90.hideusbdebugging.MainActivity"
