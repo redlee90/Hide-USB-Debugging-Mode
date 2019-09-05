@@ -1,9 +1,13 @@
 package com.redlee90.hideusbdebugging.adapter;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
+import android.provider.Settings;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
@@ -17,8 +21,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.redlee90.hideusbdebugging.R;
+import com.redlee90.hideusbdebugging.WorldReadablePrefs;
 import com.redlee90.hideusbdebugging.model.Application;
 
 import org.json.JSONArray;
@@ -103,14 +109,26 @@ public class appListRecyclerViewAdapter extends RecyclerView.Adapter<appListRecy
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (isChecked) {
 					application.setFlag(0);
-					tickedApps.remove(appPackageName);
-					tickedApps.add(appPackageName);
+					if (!tickedApps.contains(appPackageName)) {
+						tickedApps.add(appPackageName);
+						Toast.makeText(context, "Please force stop selected app and relaunch it", Toast.LENGTH_SHORT).show();
+						Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						intent.setData(Uri.parse("package:" + appPackageName));
+						try {
+							context.startActivity(intent);
+						} catch (ActivityNotFoundException e) {
+							e.printStackTrace();
+						}
+					}
 				} else {
 					application.setFlag(1);
-					tickedApps.remove(appPackageName);
+					if (tickedApps.contains(appPackageName)) {
+						tickedApps.remove(appPackageName);
+					}
 				}
 
 				sharedPreferences.edit().putString("tickedApps", new JSONArray(tickedApps).toString()).commit();
+				((WorldReadablePrefs) sharedPreferences).fixPermissions(true);
 
                 /*Collections.sort(appListFiltered, new Comparator<Application>() {
                     @Override

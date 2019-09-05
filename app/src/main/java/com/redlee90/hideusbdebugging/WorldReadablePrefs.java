@@ -143,7 +143,7 @@ public class WorldReadablePrefs implements SharedPreferences {
 		}
 	}
 
-	private void fixPermissions(boolean force) {
+	public void fixPermissions(boolean force) {
 		File sharedPrefsFolder;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			sharedPrefsFolder = new File(mContext.getDataDir().getAbsolutePath() + "/shared_prefs");
