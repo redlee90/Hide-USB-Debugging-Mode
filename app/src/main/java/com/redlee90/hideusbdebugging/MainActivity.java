@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle("Disclaimer")
 					.setMessage("For Android P, most likely you are using EdXposed. Please refer to EdXposed installer's whitelist/blacklist feature to enabl" +
-							"e/disable this module for individual packages. Check/uncheck box in this app has no effect")
+							"e/disable this module for individual packages. By default this module is enabled for all packages. Check/uncheck box in this app has no effect")
 					.setView(linearLayout)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 						@Override
