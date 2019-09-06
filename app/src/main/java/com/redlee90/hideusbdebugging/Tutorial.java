@@ -1,6 +1,7 @@
 package com.redlee90.hideusbdebugging;
 
 import android.content.ContentResolver;
+import android.os.Build;
 import android.provider.Settings;
 
 import org.json.JSONArray;
@@ -19,20 +20,21 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * Created by Rui Li on 12/5/2016.
  */
 public class Tutorial implements IXposedHookLoadPackage {
-	private Set<String> packageNames = new HashSet<>();
-
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
-		XSharedPreferences preferences = new XSharedPreferences(Tutorial.class.getPackage().getName(), "tickedApps");
-		preferences.reload();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+			XSharedPreferences preferences = new XSharedPreferences(Tutorial.class.getPackage().getName(), "tickedApps");
+			preferences.reload();
 
-		JSONArray jsonArray = new JSONArray(preferences.getString("tickedApps", "[]"));
-		for (int i = 0; i < jsonArray.length(); ++i) {
-			packageNames.add(jsonArray.getString(i));
-		}
+			Set<String> packageNames = new HashSet<>();
+			JSONArray jsonArray = new JSONArray(preferences.getString("tickedApps", "[]"));
+			for (int i = 0; i < jsonArray.length(); ++i) {
+				packageNames.add(jsonArray.getString(i));
+			}
 
-		if (!packageNames.contains(loadPackageParam.packageName)) {
-			return;
+			if (!packageNames.contains(loadPackageParam.packageName)) {
+				return;
+			}
 		}
 
 		XposedBridge.log("hideUSBDebugging: hook " + loadPackageParam.packageName);

@@ -1,18 +1,24 @@
 package com.redlee90.hideusbdebugging;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.view.Gravity;
 import android.view.Menu;
+import android.widget.LinearLayout;
 
 import com.redlee90.hideusbdebugging.adapter.appListRecyclerViewAdapter;
 import com.redlee90.hideusbdebugging.model.Application;
@@ -27,6 +33,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+	private static final String PREFERENCE_KEY_NEVER_SHOW_DISCLAIMER = "never_show_disclaimer";
 	private RecyclerView recyclerView;
 	private appListRecyclerViewAdapter recyclerViewAdapter;
 	private SharedPreferences sharedPreferences;
@@ -55,6 +62,31 @@ public class MainActivity extends AppCompatActivity {
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 		new LoadAppListAsyncTask().execute();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFERENCE_KEY_NEVER_SHOW_DISCLAIMER, false)) {
+			LinearLayout linearLayout = new LinearLayout(this);
+			linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+			final AppCompatCheckBox box = new AppCompatCheckBox(this);
+			box.setText("Never show this dialog again");
+
+			linearLayout.addView(box);
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle("Disclaimer")
+					.setMessage("For Android P, most likely you are using EdXposed. Please refer to EdXposed installer's whitelist/blacklist feature to enabl" +
+							"e/disable this module for individual packages. Check/uncheck box in this app has no effect")
+					.setView(linearLayout)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (box.isChecked()) {
+								PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean(PREFERENCE_KEY_NEVER_SHOW_DISCLAIMER, true).apply();
+							}
+						}
+					});
+			AlertDialog alertDialog = builder.create();
+			alertDialog.show();
+		}
 	}
 
 	@Override
