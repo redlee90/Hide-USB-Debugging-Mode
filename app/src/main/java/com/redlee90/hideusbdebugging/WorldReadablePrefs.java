@@ -27,15 +27,6 @@ import java.util.Set;
 
 public class WorldReadablePrefs implements SharedPreferences {
 	public static final boolean DEBUG = false;
-
-	public interface OnPreferencesCommitedListener {
-		void onPreferencesCommited();
-	}
-
-	public interface OnSharedPreferenceChangeCommitedListener {
-		void onSharedPreferenceChangeCommited();
-	}
-
 	private String mPrefsName;
 	private Context mContext;
 	private SharedPreferences mPrefs;
@@ -44,6 +35,23 @@ public class WorldReadablePrefs implements SharedPreferences {
 	private EditorWrapper mEditorWrapper;
 	private boolean mSelfAttrChange;
 	private Handler mHandler;
+	private Runnable mPreferencesCommitedRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (mOnPreferencesCommitedListener != null) {
+				mOnPreferencesCommitedListener.onPreferencesCommited();
+				mOnPreferencesCommitedListener = null;
+			}
+		}
+	};
+	private Runnable mSharedPreferenceChangeCommitedRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (mOnSharedPreferenceChangeCommitedListener != null) {
+				mOnSharedPreferenceChangeCommitedListener.onSharedPreferenceChangeCommited();
+			}
+		}
+	};
 
 	public WorldReadablePrefs(Context ctx, String prefsName) {
 		mContext = ctx;
@@ -144,19 +152,32 @@ public class WorldReadablePrefs implements SharedPreferences {
 	}
 
 	public void fixPermissions(boolean force) {
-		File sharedPrefsFolder;
+		File pkgFolder;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			sharedPrefsFolder = new File(mContext.getDataDir().getAbsolutePath() + "/shared_prefs");
+			pkgFolder = mContext.getDataDir();
 		} else {
-			sharedPrefsFolder = new File(mContext.getApplicationInfo().dataDir + "/shared_prefs");
+			pkgFolder = new File(mContext.getApplicationInfo().dataDir);
 		}
-		if (sharedPrefsFolder.exists()) {
-			sharedPrefsFolder.setExecutable(true, false);
-			sharedPrefsFolder.setReadable(true, false);
-			File f = new File(sharedPrefsFolder.getAbsolutePath() + "/" + mPrefsName + ".xml");
-			if (f.exists()) {
-				mSelfAttrChange = !force;
-				f.setReadable(true, false);
+		if (pkgFolder.exists()) {
+			pkgFolder.setExecutable(true, false);
+			pkgFolder.setReadable(true, false);
+
+			File sharedPrefsFolder;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				sharedPrefsFolder = new File(mContext.getDataDir().getAbsolutePath() + "/shared_prefs");
+			} else {
+				sharedPrefsFolder = new File(mContext.getApplicationInfo().dataDir + "/shared_prefs");
+			}
+			if (sharedPrefsFolder.exists()) {
+				sharedPrefsFolder.setExecutable(true, false);
+				sharedPrefsFolder.setReadable(true, false);
+
+				File sharedPrefsFile = new File(sharedPrefsFolder.getAbsolutePath() + "/" + mPrefsName + ".xml");
+				if (sharedPrefsFile.exists()) {
+					mSelfAttrChange = !force;
+					sharedPrefsFile.setExecutable(true, false);
+					sharedPrefsFile.setReadable(true, false);
+				}
 			}
 		}
 	}
@@ -202,24 +223,13 @@ public class WorldReadablePrefs implements SharedPreferences {
 		mHandler.postDelayed(mSharedPreferenceChangeCommitedRunnable, 100);
 	}
 
-	private Runnable mPreferencesCommitedRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (mOnPreferencesCommitedListener != null) {
-				mOnPreferencesCommitedListener.onPreferencesCommited();
-				mOnPreferencesCommitedListener = null;
-			}
-		}
-	};
+	public interface OnPreferencesCommitedListener {
+		void onPreferencesCommited();
+	}
 
-	private Runnable mSharedPreferenceChangeCommitedRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (mOnSharedPreferenceChangeCommitedListener != null) {
-				mOnSharedPreferenceChangeCommitedListener.onSharedPreferenceChangeCommited();
-			}
-		}
-	};
+	public interface OnSharedPreferenceChangeCommitedListener {
+		void onSharedPreferenceChangeCommited();
+	}
 
 	public class EditorWrapper implements SharedPreferences.Editor {
 

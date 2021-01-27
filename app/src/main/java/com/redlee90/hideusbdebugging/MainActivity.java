@@ -9,16 +9,17 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatCheckBox;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.Gravity;
 import android.view.Menu;
 import android.widget.LinearLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
+import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.redlee90.hideusbdebugging.adapter.appListRecyclerViewAdapter;
 import com.redlee90.hideusbdebugging.model.Application;
@@ -26,7 +27,6 @@ import com.redlee90.hideusbdebugging.model.Application;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,39 +42,27 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		File pkgFolder;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			pkgFolder = getDataDir();
-		} else {
-			pkgFolder = new File(getApplicationInfo().dataDir);
-		}
-
-		if (pkgFolder.exists()) {
-			pkgFolder.setExecutable(true, false);
-			pkgFolder.setReadable(true, false);
-		}
-
 		sharedPreferences = new WorldReadablePrefs(MainActivity.this, "tickedApps");
 
 		setContentView(R.layout.activity_main);
 
-		recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+		recyclerView = findViewById(R.id.recyclerView);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 		new LoadAppListAsyncTask().execute();
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFERENCE_KEY_NEVER_SHOW_DISCLAIMER, false)) {
 			LinearLayout linearLayout = new LinearLayout(this);
-			linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+			linearLayout.setGravity(Gravity.LEFT);
 
 			final AppCompatCheckBox box = new AppCompatCheckBox(this);
 			box.setText("Never show this dialog again");
 
+
 			linearLayout.addView(box);
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle("Disclaimer")
-					.setMessage("For Android P, most likely you are using EdXposed. Please refer to EdXposed installer's whitelist/blacklist feature to enabl" +
-							"e/disable this module for individual packages. By default this module is enabled for all packages. Check/uncheck box in this app has no effect")
+					.setMessage("On Android 9 and above, please utilize EdXposed Manager's whitelist feature to select target apps. By default this module is applied to all apps except the system Settings app. Checking/unchecking app on Android 9 or above has no effects.")
 					.setView(linearLayout)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 						@Override
