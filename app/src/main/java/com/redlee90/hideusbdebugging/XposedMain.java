@@ -36,8 +36,8 @@ public class XposedMain implements IXposedHookLoadPackage {
 			}
 		}
 
-		// Skip the Settings app
-		if (loadPackageParam.packageName.equals("com.android.settings")) {
+		// Skip Android system packages
+		if (loadPackageParam.packageName.startsWith("android") || loadPackageParam.packageName.startsWith("com.android")) {
 			return;
 		}
 
@@ -46,7 +46,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		XposedHelpers.findAndHookMethod("android.provider.Settings.Global", loadPackageParam.classLoader, "getInt", ContentResolver.class, String.class, int.class, new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				XposedBridge.log("hideUSBDebugging: hook Settings.Global.getInt(3) method");
+//				XposedBridge.log("hideUSBDebugging: hook Settings.Global.getInt(3) method");
 				if (param.args[1].equals(Settings.Global.ADB_ENABLED)) {
 					param.setResult(0);
 				}
@@ -56,7 +56,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		XposedHelpers.findAndHookMethod("android.provider.Settings.Global", loadPackageParam.classLoader, "getInt", ContentResolver.class, String.class, new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				XposedBridge.log("hideUSBDebugging: hook Settings.Global.getInt(2) method");
+//				XposedBridge.log("hideUSBDebugging: hook Settings.Global.getInt(2) method");
 				if (param.args[1].equals(Settings.Global.ADB_ENABLED)) {
 					param.setResult(0);
 				}
@@ -66,7 +66,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		XposedHelpers.findAndHookMethod("android.provider.Settings.Secure", loadPackageParam.classLoader, "getInt", ContentResolver.class, String.class, int.class, new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				XposedBridge.log("hideUSBDebugging: hook Settings.Secure.getInt(3) method");
+//				XposedBridge.log("hideUSBDebugging: hook Settings.Secure.getInt(3) method");
 				if (param.args[1].equals(Settings.Secure.ADB_ENABLED)) {
 					param.setResult(0);
 				}
@@ -76,7 +76,7 @@ public class XposedMain implements IXposedHookLoadPackage {
 		XposedHelpers.findAndHookMethod("android.provider.Settings.Secure", loadPackageParam.classLoader, "getInt", ContentResolver.class, String.class, new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				XposedBridge.log("hideUSBDebugging: hook Settings.Secure.getInt(2) method");
+//				XposedBridge.log("hideUSBDebugging: hook Settings.Secure.getInt(2) method");
 				if (param.args[1].equals(Settings.Secure.ADB_ENABLED)) {
 					param.setResult(0);
 				}
