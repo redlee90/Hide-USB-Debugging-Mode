@@ -9,9 +9,8 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.Menu;
-import android.widget.LinearLayout;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatCheckBox;
@@ -52,18 +51,11 @@ public class MainActivity extends AppCompatActivity {
 		new LoadAppListAsyncTask().execute();
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREFERENCE_KEY_NEVER_SHOW_DISCLAIMER, false)) {
-			LinearLayout linearLayout = new LinearLayout(this);
-			linearLayout.setGravity(Gravity.LEFT);
-
-			final AppCompatCheckBox box = new AppCompatCheckBox(this);
-			box.setText("Never show this dialog again");
-
-
-			linearLayout.addView(box);
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle("Disclaimer")
-					.setMessage("On Android 9 and above, please utilize EdXposed Manager's whitelist feature to select target apps. By default this module is applied to all apps except the system Settings app. Checking/unchecking app on Android 9 or above has no effects.")
-					.setView(linearLayout)
+			View view = getLayoutInflater().inflate(R.layout.view_dialog, null, false);
+			final AppCompatCheckBox box = view.findViewById(R.id.checkbox);
+			AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle("Attention")
+					.setMessage("On Android 9 and above, please utilize EdXposed Manager's whitelist feature to enable this module for targeted apps. \n\nBy default this module is applied to all user apps. \n\nCheck/uncheck apps on this screen on Android 9 or above has no effects.\n")
+					.setView(view)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
